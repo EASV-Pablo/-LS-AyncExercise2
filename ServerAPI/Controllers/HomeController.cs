@@ -23,23 +23,10 @@ namespace ServerAPI.Controllers
 
         [HttpGet]
         [Route("{count}")]
-        public IEnumerable<int> GetNumbers(int count)
+        public int[] GetNumbers(int count)
         {
-            IEnumerable<int> result = GetEvenNumbersByAmount(count);
             Thread.Sleep(2000);
-            return result;
-        }
-
-        private IEnumerable<int> GetEvenNumbersByAmount(int amountNeeded)
-        {
-            List<int> result = new List<int>();
-            int c = 0;
-            while (result.Count < amountNeeded)
-            {
-                result.Add(c);
-                c += 2;
-            }
-            return result;
+            return new ServerLogic().GetNumbers(count, 1, 6);
         }
 
     }
