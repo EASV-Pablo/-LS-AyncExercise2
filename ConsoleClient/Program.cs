@@ -10,25 +10,30 @@ namespace ConsoleClient
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Async Exercise - type 'q' to quit");
 
             HttpClient _client = new HttpClient();
 
-            Console.Write(">");
-            char input = Console.ReadKey().KeyChar;
-            while (input != 'q')
+            int number = GetNumber("Enter a number (0 for stop): ");
+            while (number != 0)
             {
                 DateTime start = DateTime.Now;
 
-                Task<HttpResponseMessage> response = _client.GetAsync("https://localhost:5003/numbers/12");
+                Task<HttpResponseMessage> response = _client.GetAsync("https://localhost:5003/numbers/" + number);
 
                 String result = (response.Result.Content.ReadAsStringAsync().Result);
 
                 WriteToFile("Result: " + result + " between " + start.ToLongTimeString() + " - " + DateTime.Now.ToLongTimeString());
 
-                Console.Write(">");
-                input = Console.ReadKey().KeyChar;
+                
+                number = GetNumber("Enter a number (0 for stop): ");
             }
+            Console.WriteLine("Done...");
+        }
+
+        private static int GetNumber(String text)
+        {
+            Console.WriteLine(text);
+            return int.Parse(Console.ReadLine());
         }
 
         private static void WriteToFile(string s)
