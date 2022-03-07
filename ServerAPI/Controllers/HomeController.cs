@@ -23,10 +23,9 @@ namespace ServerAPI.Controllers
 
         [HttpGet]
         [Route("{count}")]
-        public int[] GetNumbers(int count)
-        {
-            Thread.Sleep(2000);
-            return new ServerLogic().GetNumbers(count, 1, 6);
+        public async Task<int[]> GetNumbers(int count)
+        {            
+            return await new ServerLogic().GetNumbersAsync(count, 1, 6);
         }
 
     }
