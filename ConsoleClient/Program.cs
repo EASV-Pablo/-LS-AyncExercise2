@@ -1,36 +1,49 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace ConsoleClient
 {
-    class Program
+    class Program : ICallback
     {
 
         static void Main(string[] args)
         {
-
-            HttpClient _client = new HttpClient();
-
-            int number = GetNumber("Enter a number (0 for stop): ");
-            while (number != 0)
-            {
-                DateTime start = DateTime.Now;
-
-                Task<HttpResponseMessage> response = _client.GetAsync("https://localhost:5003/numbers/" + number);
-
-                String result = (response.Result.Content.ReadAsStringAsync().Result);
-
-                WriteToFile("Result: " + result + " between " + start.ToLongTimeString() + " - " + DateTime.Now.ToLongTimeString());
-
-                
-                number = GetNumber("Enter a number (0 for stop): ");
-            }
-            Console.WriteLine("Done...");
+            Program p = new Program();
+            p.run();
         }
 
-        private static int GetNumber(String text)
+        public void run()
+        {
+            HttpClient _client = new HttpClient();
+
+            int number = ReadNumber("Enter a number (0 for stop): ");
+            while (number != 0)
+            {
+                var t = new Thread(() => doTheCall(number, _client, this));
+                t.Start();
+
+
+                number = ReadNumber("Enter a number (0 for stop): ");
+            }
+            Console.WriteLine("Done...");
+
+        }
+
+        private void doTheCall(int number, HttpClient _client, ICallback cb)
+        {
+            DateTime start = DateTime.Now;
+            Task<HttpResponseMessage> response = _client.GetAsync("https://localhost:5003/numbers/" + number);
+            String result = (response.Result.Content.ReadAsStringAsync().Result);
+            result = "Result: " + result + " between " + start.ToLongTimeString() + " - " + DateTime.Now.ToLongTimeString();
+            cb.WhenResultReceived(result);
+
+        }
+
+        private static int ReadNumber(String text)
         {
             Console.WriteLine(text);
             return int.Parse(Console.ReadLine());
@@ -44,7 +57,12 @@ namespace ConsoleClient
 
             sw.WriteLine(s);
 
-            sw.Flush();
+            sw.Close();
+        }
+
+        void ICallback.WhenResultReceived(string result)
+        {
+            WriteToFile(result);
         }
     }
 }
