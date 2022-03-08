@@ -22,12 +22,6 @@ namespace ServerAPI.Controllers
             return res;
         }
 
-        public int[] work(int amount, int min, int max)
-        {
-            Thread.Sleep(2000);
-            return GetNumbers(amount, min, max);
-        }
-
         public Task<int[]> GetNumbersAsync(int amount, int min, int max)
         {
             var res = Task.Run(() => GetNumbers(amount, min, max));
